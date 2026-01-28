@@ -56,23 +56,32 @@ Progress (%) = (Progress Cost BOQ / Total Cost Work Package) × 100
 
 ## 🗂️ Data Structure
 
+### Projects
+- id
+- project_code
+- project_name
+
 ### Work Package
-- code
-- name
-- description
+- id
+- project_id
+- wp_code
+- wp_name
+- discipline_code
 
 ### BOQ
+- id
 - work_package_id
-- item_name
-- quantity
-- unit_price
-- total_cost
+- boq_code
+- description
+- uom
+- budget_qty
+- unit_rate
 
 ### Progress
+- id
 - boq_id
-- progress_percent
-- progress_value
-- input_date
+- progress_date
+- actual_qty
 
 ---
 
@@ -92,6 +101,7 @@ Progress (%) = (Progress Cost BOQ / Total Cost Work Package) × 100
 
 ## 🎯 Features
 
+- CRUD Projects
 - CRUD Work Package
 - CRUD BOQ
 - Input Progress BOQ
@@ -123,7 +133,7 @@ Progress (%) = (Progress Cost BOQ / Total Cost Work Package) × 100
 ## 🚀 Installation
 
 ```bash
-git clone https://github.com/username/gems-project.git
+git clone https://github.com/arisdp/gems-project.git
 cd gems-project
 
 composer install
@@ -144,4 +154,4 @@ http://localhost:8000
 ## 📝 Author
 
 **Aries Dian**  
-Laravel & Vue Developer  
+Laravel & Vue Developer
