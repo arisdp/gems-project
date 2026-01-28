@@ -139,6 +139,8 @@ php artisan serve
 ## 🚀 Akses
 http://localhost:8000
 
+```
+
 ## 📝 Author
 
 **Aries Dian**  
