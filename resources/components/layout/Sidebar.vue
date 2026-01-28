@@ -30,7 +30,7 @@
                             :class="{ active: activeMenu === menu.path }"
                             @click.prevent="$emit('change', menu.path)"
                         >
-                            <i class="nav-icon fas fa-edit"></i>
+                            <i :class="['nav-icon', menu.icon]"></i>
                             <p>{{ menu.label }}</p>
                         </a>
                     </li>
@@ -49,9 +49,9 @@ defineProps({
 });
 
 const menus = [
-    { label: "Project", path: "project" },
-    { label: "Work Package", path: "wp" },
-    { label: "BOQ", path: "boq" },
-    { label: "Progress", path: "progress" },
+    { label: "Project", path: "project", icon: "fas fa-folder" },
+    { label: "Work Package", path: "wp", icon: "fas fa-tasks" },
+    { label: "BOQ", path: "boq", icon: "fas fa-file-invoice-dollar" },
+    { label: "Progress", path: "progress", icon: "fas fa-chart-line" },
 ];
 </script>
