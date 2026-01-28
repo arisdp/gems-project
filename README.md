@@ -1,5 +1,4 @@
 # gems-project
-=======
 
 <p align="center">
   <a href="https://laravel.com" target="_blank">
@@ -139,14 +138,6 @@ php artisan serve
 
 ## 🚀 Akses
 http://localhost:8000
-
-## 📊 Notes for Reviewer
-
-- Fokus utama aplikasi adalah **logic perhitungan progress**
-- Struktur kode dibuat **modular dan scalable**
-- UX disesuaikan dengan **workflow Project Control Engineer**
-
----
 
 ## 📝 Author
 
