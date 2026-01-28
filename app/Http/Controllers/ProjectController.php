@@ -9,7 +9,9 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        return Project::with('workPackages')->get();
+        return response()->json([
+            'data' => Project::orderBy('id', 'desc')->get()
+        ]);
     }
 
     public function store(Request $request)
@@ -19,12 +21,12 @@ class ProjectController extends Controller
             'project_name' => 'required'
         ]);
 
-        return Project::create($data);
-    }
+        $project = Project::create($data);
 
-    public function show(Project $project)
-    {
-        return $project->load('workPackages.boqs.progressEntries');
+        return response()->json([
+            'message' => 'Project created',
+            'data' => $project
+        ], 201);
     }
 
     public function update(Request $request, Project $project)
@@ -35,12 +37,20 @@ class ProjectController extends Controller
         ]);
 
         $project->update($data);
-        return $project;
+
+        return response()->json([
+            'message' => 'Project updated',
+            'data' => $project
+        ]);
     }
 
     public function destroy(Project $project)
     {
         $project->delete();
-        return response()->json(['message' => 'Project deleted']);
+
+        return response()->json([
+            'message' => 'Project deleted',
+            'id' => $project->id
+        ]);
     }
 }

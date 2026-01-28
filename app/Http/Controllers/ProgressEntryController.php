@@ -1,43 +1,30 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Models\Boq;
-use App\Models\ProgressEntry;
+use App\Http\Controllers\Controller;
+use App\Models\{ProgressEntry, Boq};
 use Illuminate\Http\Request;
 
 class ProgressEntryController extends Controller
 {
-    public function index()
-    {
-        return ProgressEntry::with('boq')->orderBy('progress_date')->get();
-    }
-
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'boq_id' => 'required|exists:boqs,id',
             'progress_date' => 'required|date',
             'actual_qty' => 'required|numeric|min:0'
         ]);
 
-        $boq = Boq::with('progressEntries')->findOrFail($data['boq_id']);
+        $boq = Boq::withSum('progressEntries', 'actual_qty')->findOrFail($request->boq_id);
+        $total = $boq->progress_entries_sum_actual_qty + $request->actual_qty;
 
-        $totalActual = $boq->actual_qty + $data['actual_qty'];
-
-        // ❗ VALIDASI WAJIB
-        if ($totalActual > $boq->budget_qty) {
+        if ($total > $boq->budget_qty) {
             return response()->json([
-                'message' => 'Actual quantity exceeds BOQ budget'
+                'message' => 'Progress melebihi Budget Qty'
             ], 422);
         }
 
-        return ProgressEntry::create($data);
-    }
-
-    public function destroy(ProgressEntry $progressEntry)
-    {
-        $progressEntry->delete();
-        return response()->json(['message' => 'Progress deleted']);
+        return ProgressEntry::create($request->all());
     }
 }

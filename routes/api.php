@@ -25,6 +25,7 @@ use App\Http\Controllers\{
 
 Route::get('/dashboard', [DashboardController::class, 'index']);
 
+
 Route::apiResource('projects', ProjectController::class);
 Route::apiResource('work-packages', WorkPackageController::class);
 Route::apiResource('boqs', BoqController::class);

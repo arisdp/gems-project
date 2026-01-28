@@ -11,32 +11,29 @@
             </ul>
         </nav>
 
-        <!-- Sidebar -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4">
-            <a href="#" class="brand-link">
-                <span class="brand-text font-weight-light">GEMS</span>
-            </a>
-            <div class="sidebar">
-                <nav>
-                    <ul class="nav nav-pills nav-sidebar flex-column">
-                        <li class="nav-item">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-chart-bar"></i>
-                                <p>Dashboard</p>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-        </aside>
+        <!-- Sidebar (HANYA DI SINI) -->
+        <Sidebar :active="page" @change="page = $event" />
 
         <!-- Content -->
         <div class="content-wrapper p-3">
-            <Dashboard />
+            <Dashboard v-if="page === 'dashboard'" />
+            <ProjectForm v-if="page === 'project'" />
+            <WorkPackageForm v-if="page === 'wp'" />
+            <BoqForm v-if="page === 'boq'" />
+            <ProgressForm v-if="page === 'progress'" />
         </div>
     </div>
 </template>
 
 <script setup>
+import { ref } from "vue";
+
+import Sidebar from "../components/layout/Sidebar.vue";
 import Dashboard from "./pages/Dashboard.vue";
+import ProjectForm from "./pages/forms/ProjectForm.vue";
+import WorkPackageForm from "./pages/forms/WorkPackageForm.vue";
+import BoqForm from "./pages/forms/BoqForm.vue";
+import ProgressForm from "./pages/forms/ProgressForm.vue";
+
+const page = ref("dashboard");
 </script>
