@@ -19,23 +19,16 @@ class BoqController extends Controller
     {
         $validated = $request->validate([
             'work_package_id' => 'required|exists:work_packages,id',
-            'boq_code'        => 'required|string|max:50',
-            'description'     => 'required|string',
-            'uom'             => 'required|string|max:20',
-            'budget_qty'      => 'required|numeric|min:0',
-            'unit_rate'       => 'required|numeric|min:0',
+            'boq_code' => 'required|string',
+            'description' => 'nullable|string',
+            'uom' => 'required|string',
+            'budget_qty' => 'required|numeric|min:0',
+            'unit_rate' => 'required|numeric|min:0',
         ]);
 
-        // hitung amount (business rule)
-        $validated['amount'] =
-            $validated['budget_qty'] * $validated['unit_rate'];
-
-        $boq = Boq::create($validated);
-
-        return response()->json([
-            'data' => $boq->load('workPackage')
-        ]);
+        return Boq::create($validated);
     }
+
 
     public function update(Request $request, $id)
     {
@@ -49,10 +42,6 @@ class BoqController extends Controller
             'budget_qty'      => 'required|numeric|min:0',
             'unit_rate'       => 'required|numeric|min:0',
         ]);
-
-        // hitung ulang amount
-        $validated['amount'] =
-            $validated['budget_qty'] * $validated['unit_rate'];
 
         $boq->update($validated);
 

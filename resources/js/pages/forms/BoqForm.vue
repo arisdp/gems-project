@@ -231,7 +231,7 @@ const filteredData = computed(() => {
     return boqs.value.filter(
         (b) =>
             b.boq_code.toLowerCase().includes(q) ||
-            b.description.toLowerCase().includes(q) ||
+            (b.description ?? "").toLowerCase().includes(q) ||
             b.work_package.wp_code.toLowerCase().includes(q)
     );
 });
@@ -279,11 +279,26 @@ const openModal = () => {
 };
 
 const edit = (boq) => {
-    form.value = { ...boq };
+    // 🔥 FIX: mapping manual, JANGAN spread object
+    form.value = {
+        id: boq.id,
+        work_package_id: boq.work_package_id,
+        boq_code: boq.boq_code,
+        description: boq.description,
+        uom: boq.uom,
+        budget_qty: boq.budget_qty,
+        unit_rate: boq.unit_rate,
+    };
     modalInstance.show();
 };
 
 const save = async () => {
+    // 🔒 frontend validation ringan
+    if (!form.value.work_package_id || !form.value.boq_code || !form.value.uom) {
+        showToast("Error", "Work Package, BOQ Code, dan UOM wajib diisi");
+        return;
+    }
+
     try {
         if (form.value.id) {
             const res = await axios.put(
@@ -297,11 +312,13 @@ const save = async () => {
             showToast("Success", "BOQ updated");
         } else {
             const res = await axios.post("/api/boqs", form.value);
-            boqs.value.unshift(res.data.data);
+            // 🔥 FIX: store() tidak pakai data wrapper
+            boqs.value.unshift(res.data);
             showToast("Success", "BOQ created");
         }
         modalInstance.hide();
-    } catch {
+    } catch (e) {
+        console.error(e.response?.data);
         showToast("Error", "Failed to save BOQ");
     }
 };
@@ -343,6 +360,7 @@ const reset = () => {
 const formatCurrency = (n) =>
     new Intl.NumberFormat("id-ID").format(n || 0);
 </script>
+
 
 <style scoped>
 .table td,
