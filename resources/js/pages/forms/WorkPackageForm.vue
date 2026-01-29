@@ -3,14 +3,14 @@
         <div class="d-flex justify-content-between mb-3">
             <h4>Work Package</h4>
             <button class="btn btn-primary" @click="openModal">
-                + Tambah WP
+                + Tambah Work Package
             </button>
         </div>
 
         <div class="row mb-2">
             <div class="col-md-4">
                 <input v-model="search" type="text" class="form-control"
-                    placeholder="Search WP / Project / Discipline..." />
+                    placeholder="Search Work Package / Project / Discipline..." />
             </div>
         </div>
 
