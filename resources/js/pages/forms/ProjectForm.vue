@@ -1,24 +1,18 @@
 <template>
     <section class="content">
-        <!-- Header -->
         <div class="d-flex justify-content-between mb-3">
             <h4>Project</h4>
-            <button class="btn btn-primary mb-3" @click="openModal">
+            <button class="btn btn-primary" @click="openModal">
                 + Tambah Project
             </button>
         </div>
 
-        <!-- Search -->
-        <div class="mb-3">
-            <input
-                v-model="search"
-                type="text"
-                class="form-control"
-                placeholder="Search project..."
-            />
+        <div class="row mb-2">
+            <div class="col-md-4">
+                <input v-model="search" type="text" class="form-control" placeholder="Search Project ..." />
+            </div>
         </div>
 
-        <!-- Table -->
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -28,92 +22,68 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="p in paginatedProjects" :key="p.id">
+                <tr v-for="p in paginatedData" :key="p.id">
                     <td>{{ p.project_code }}</td>
                     <td>{{ p.project_name }}</td>
                     <td>
-                        <button
-                            class="btn btn-sm btn-warning mr-1"
-                            @click="edit(p)"
-                        >
+                        <button class="btn btn-sm btn-warning mr-1" @click="edit(p)">
                             Edit
                         </button>
-                        <button
-                            class="btn btn-sm btn-danger"
-                            @click="remove(p)"
-                        >
+                        <button class="btn btn-sm btn-danger" @click="remove(p)">
                             Delete
                         </button>
                     </td>
                 </tr>
-                <tr v-if="filteredProjects.length === 0">
-                    <td colspan="3" class="text-center">No projects found</td>
-                </tr>
             </tbody>
         </table>
 
-        <!-- Pagination -->
-        <nav v-if="totalPages > 1">
-            <ul class="pagination justify-content-center">
-                <li
-                    class="page-item"
-                    :class="{ disabled: currentPage === 1 }"
-                    @click="prevPage"
-                >
-                    <a class="page-link" href="#">Previous</a>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+                Showing {{ startItem }} - {{ endItem }}
+                of {{ filteredData.length }}
+            </div>
+
+            <ul class="pagination mb-0">
+                <li class="page-item" :class="{ disabled: page === 1 }">
+                    <a class="page-link" href="#" @click.prevent="page--">
+                        Prev
+                    </a>
                 </li>
-                <li
-                    class="page-item"
-                    v-for="page in totalPages"
-                    :key="page"
-                    :class="{ active: page === currentPage }"
-                    @click="goToPage(page)"
-                >
-                    <a class="page-link" href="#">{{ page }}</a>
+
+                <li class="page-item" v-for="n in totalPages" :key="n" :class="{ active: n === page }">
+                    <a class="page-link" href="#" @click.prevent="page = n">
+                        {{ n }}
+                    </a>
                 </li>
-                <li
-                    class="page-item"
-                    :class="{ disabled: currentPage === totalPages }"
-                    @click="nextPage"
-                >
-                    <a class="page-link" href="#">Next</a>
+
+                <li class="page-item" :class="{ disabled: page === totalPages }">
+                    <a class="page-link" href="#" @click.prevent="page++">
+                        Next
+                    </a>
                 </li>
             </ul>
-        </nav>
+        </div>
 
         <!-- MODAL -->
-        <div
-            class="modal fade"
-            tabindex="-1"
-            ref="projectModal"
-            aria-hidden="true"
-        >
+        <div class="modal fade" ref="modalEl">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Project</h5>
-                        <button
-                            type="button"
-                            class="btn-close"
-                            @click="closeModal"
-                        ></button>
+                        <h5>Project</h5>
+                        <button class="close" @click="closeModal">
+                            &times;
+                        </button>
                     </div>
 
                     <div class="modal-body">
                         <div class="form-group mb-2">
                             <label>Project Code</label>
-                            <input
-                                v-model="form.project_code"
-                                class="form-control"
-                            />
+                            <input v-model="form.project_code" class="form-control" />
                         </div>
 
                         <div class="form-group mb-2">
                             <label>Project Name</label>
-                            <input
-                                v-model="form.project_name"
-                                class="form-control"
-                            />
+                            <input v-model="form.project_name" class="form-control" />
                         </div>
                     </div>
 
@@ -130,49 +100,33 @@
         </div>
 
         <!-- TOAST -->
-        <div
-            class="toast position-fixed bottom-0 end-0 m-3"
-            ref="toastEl"
-            role="alert"
-            aria-live="assertive"
-            aria-atomic="true"
-        >
+        <div class="toast position-fixed" style="top: 20px; right: 20px; z-index: 9999" ref="toastEl">
             <div class="toast-header">
-                <strong class="me-auto">{{ toast.title }}</strong>
-                <button
-                    type="button"
-                    class="btn-close"
-                    @click="hideToast"
-                ></button>
+                <strong class="mr-auto">
+                    {{ toast.title }}
+                </strong>
+                <button class="ml-2 mb-1 close" @click="hideToast">
+                    &times;
+                </button>
             </div>
-            <div class="toast-body">{{ toast.message }}</div>
+            <div class="toast-body">
+                {{ toast.message }}
+            </div>
         </div>
 
         <!-- DELETE CONFIRMATION MODAL -->
-        <div
-            class="modal fade"
-            tabindex="-1"
-            ref="deleteModal"
-            aria-hidden="true"
-        >
+        <div class="modal fade" tabindex="-1" ref="deleteModal" aria-hidden="true">
             <div class="modal-dialog modal-sm modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Confirm Delete</h5>
-                        <button
-                            type="button"
-                            class="btn-close"
-                            @click="closeDeleteModal"
-                        ></button>
+                        <button type="button" class="btn-close" @click="closeDeleteModal"></button>
                     </div>
                     <div class="modal-body">
-                        Are you sure you want to delete this project?
+                        Are you sure you want to delete this Project?
                     </div>
                     <div class="modal-footer">
-                        <button
-                            class="btn btn-secondary"
-                            @click="closeDeleteModal"
-                        >
+                        <button class="btn btn-secondary" @click="closeDeleteModal">
                             Cancel
                         </button>
                         <button class="btn btn-danger" @click="confirmDelete">
@@ -186,36 +140,130 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
-// MODAL
-let modalInstance = null;
-const projectModal = ref(null);
+/* =========================================================
+ * STATE: SEARCH & PAGINATION
+ * ========================================================= */
+const search = ref("");
+const page = ref(1);
+const perPage = 10;
 
-// TOAST
+/* =========================================================
+ * COMPUTED: FILTERING
+ * ========================================================= */
+const filteredData = computed(() => {
+    if (!search.value) return projects.value;
+
+    const q = search.value.toLowerCase();
+
+    return projects.value.filter((p) =>
+        p.project_code.toLowerCase().includes(q) ||
+        p.project_name.toLowerCase().includes(q),
+    );
+});
+
+watch(search, () => {
+    page.value = 1;
+});
+
+/* =========================================================
+ * COMPUTED: PAGINATION
+ * ========================================================= */
+const totalPages = computed(() =>
+    Math.ceil(filteredData.value.length / perPage)
+);
+
+const paginatedData = computed(() => {
+    const start = (page.value - 1) * perPage;
+    return filteredData.value.slice(start, start + perPage);
+});
+
+const startItem = computed(() =>
+    filteredData.value.length === 0
+        ? 0
+        : (page.value - 1) * perPage + 1
+);
+
+const endItem = computed(() =>
+    Math.min(page.value * perPage, filteredData.value.length)
+);
+
+/* =========================================================
+ * STATE: DATA
+ * ========================================================= */
+const projects = ref([]);
+
+/* =========================================================
+ * STATE: MODAL & TOAST
+ * ========================================================= */
+const modalEl = ref(null);
 const toastEl = ref(null);
-let toastInstance = null;
-const toast = ref({ title: "", message: "" });
-const showToast = (title, message) => {
-    toast.value.title = title;
-    toast.value.message = message;
-    toastInstance = new bootstrap.Toast(toastEl.value, { delay: 3000 });
-    toastInstance.show();
-};
-const hideToast = () => toastInstance?.hide();
-
-// DELETE MODAL
 const deleteModal = ref(null);
-let deleteModalInstance = null;
 const projectToDelete = ref(null);
 
+let modalInstance = null;
+let toastInstance = null;
+let deleteModalInstance = null;
+
+
+/* =========================================================
+ * STATE: FORM
+ * ========================================================= */
+const form = ref({
+    id: null,
+    project_code: "",
+    project_name: "",
+});
+
+/* =========================================================
+ * STATE: TOAST MESSAGE
+ * ========================================================= */
+const toast = ref({
+    title: "",
+    message: "",
+});
+
+/* =========================================================
+ * UI: TOAST HANDLER
+ * ========================================================= */
+const showToast = (title, message) => {
+    toast.value = { title, message };
+    toastInstance = new bootstrap.Toast(toastEl.value, {
+        delay: 3000,
+    });
+    toastInstance.show();
+};
+
+/* =========================================================
+ * API: LOAD DATA
+ * ========================================================= */
+const loadData = async () => {
+    try {
+        const res = await axios.get("/api/projects");
+        projects.value = res.data.data;
+    } catch {
+        showToast("Error", "Failed to load projects");
+    }
+};
+
+/* =========================================================
+ * LIFECYCLE
+ * ========================================================= */
 onMounted(() => {
-    modalInstance = new bootstrap.Modal(projectModal.value);
+    modalInstance = new bootstrap.Modal(modalEl.value);
     deleteModalInstance = new bootstrap.Modal(deleteModal.value);
     loadData();
 });
+
+/* =========================================================
+ * MODAL ACTIONS
+ * ========================================================= */
+const openModal = () => {
+    reset();
+    modalInstance.show();
+};
 
 // buka modal delete
 const remove = (project) => {
@@ -230,57 +278,16 @@ const closeDeleteModal = () => {
     deleteModalInstance.hide();
 };
 
-// DATA
-const projects = ref([]);
-const form = ref({ id: null, project_code: "", project_name: "" });
-const search = ref("");
-
-// PAGINATION
-const currentPage = ref(1);
-const perPage = 5;
-
-// COMPUTED FILTER & PAGINATION
-const filteredProjects = computed(() =>
-    projects.value.filter(
-        (p) =>
-            p.project_code.toLowerCase().includes(search.value.toLowerCase()) ||
-            p.project_name.toLowerCase().includes(search.value.toLowerCase()),
-    ),
-);
-
-const totalPages = computed(() =>
-    Math.ceil(filteredProjects.value.length / perPage),
-);
-
-const paginatedProjects = computed(() => {
-    const start = (currentPage.value - 1) * perPage;
-    return filteredProjects.value.slice(start, start + perPage);
-});
-
-// LIFECYCLE
-onMounted(async () => {
-    modalInstance = new bootstrap.Modal(projectModal.value);
-    await loadData();
-});
-
-// LOAD DATA
-const loadData = async () => {
-    try {
-        const res = await axios.get("/api/projects");
-        projects.value = res.data.data;
-    } catch {
-        showToast("Error", "Failed to load projects");
-    }
-};
-
-// MODAL HANDLERS
-const openModal = () => {
-    reset();
-    modalInstance.show();
-};
 const closeModal = () => modalInstance.hide();
 
-// CRUD HANDLERS
+/* =========================================================
+ * CRUD ACTIONS
+ * ========================================================= */
+const edit = (project) => {
+    form.value = { ...project };
+    modalInstance.show();
+};
+
 const save = async () => {
     try {
         if (form.value.id) {
@@ -288,42 +295,25 @@ const save = async () => {
                 `/api/projects/${form.value.id}`,
                 form.value,
             );
-            const index = projects.value.findIndex(
+            const i = projects.value.findIndex(
                 (p) => p.id === form.value.id,
             );
-            projects.value[index] = res.data.data;
-            showToast("Success", "Project updated successfully");
+            projects.value[i] = res.data.data;
+            showToast("Success", "Project updated");
         } else {
-            const res = await axios.post("/api/projects", form.value);
+            const res = await axios.post(
+                "/api/projects",
+                form.value,
+            );
             projects.value.unshift(res.data.data);
-            showToast("Success", "Project created successfully");
+            showToast("Success", "Project created");
         }
         modalInstance.hide();
         reset();
-    } catch (err) {
-        showToast(
-            "Error",
-            err.response?.data?.message || "Failed to save project",
-        );
+    } catch (e) {
+        showToast("Error", "Failed to save project");
     }
 };
-
-const edit = (project) => {
-    form.value = { ...project };
-    modalInstance.show();
-};
-
-// const remove = async (id) => {
-//     if (!confirm("Delete this project?")) return;
-
-//     try {
-//         await axios.delete(`/api/projects/${id}`);
-//         projects.value = projects.value.filter((p) => p.id !== id);
-//         showToast("Success", "Project deleted");
-//     } catch {
-//         showToast("Error", "Failed to delete project");
-//     }
-// };
 
 // konfirmasi delete
 const confirmDelete = async () => {
@@ -342,16 +332,16 @@ const confirmDelete = async () => {
     }
 };
 
-// RESET FORM
+/* =========================================================
+ * FORM RESET
+ * ========================================================= */
 const reset = () => {
-    form.value = { id: null, project_code: "", project_name: "" };
+    form.value = {
+        id: null,
+        project_code: "",
+        project_name: "",
+    };
 };
-
-// PAGINATION CONTROLS
-const goToPage = (page) => (currentPage.value = page);
-const prevPage = () => (currentPage.value = Math.max(1, currentPage.value - 1));
-const nextPage = () =>
-    (currentPage.value = Math.min(totalPages.value, currentPage.value + 1));
 </script>
 
 <style scoped>
