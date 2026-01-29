@@ -9,14 +9,15 @@ use Illuminate\Http\Request;
 class ProgressEntryController extends Controller
 {
 
-    public function index($boqId)
+    public function index()
     {
         return response()->json([
-            'data' => ProgressEntry::where('boq_id', $boqId)
+            'data' => ProgressEntry::with('boq')
                 ->orderBy('progress_date')
                 ->get()
         ]);
     }
+
 
     public function store(Request $request)
     {

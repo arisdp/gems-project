@@ -31,9 +31,9 @@
                     <td>{{ p.progress_date }}</td>
                     <td>{{ p.actual_qty }}</td>
                     <td>
-                        <button class="btn btn-sm btn-warning mr-1" @click="edit(p)">
+                        <!-- <button class="btn btn-sm btn-warning mr-1" @click="edit(p)">
                             Edit
-                        </button>
+                        </button> -->
                         <button class="btn btn-sm btn-danger" @click="remove(p)">
                             Delete
                         </button>
